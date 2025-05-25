@@ -39,7 +39,7 @@ public class BotService {
         SendMessage message = new SendMessage(String.valueOf(chatId), string);
         controlSendingControl(telegramBot.execute(message));
     }
-
+    //заносим в Set первоначальные исходные данные объектов при запуске приложения
     public void initialization() {
         basesTextDateTime = telegramRepository.listNotification(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
     }
