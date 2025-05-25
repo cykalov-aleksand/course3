@@ -63,13 +63,13 @@ public class BotService {
     @Scheduled(cron = "0/59 * * * * ?")
     public void executeTask() {
         //проводим поиск элементов с текущим временем
-        List<NotificationTask> listObjectEqualsDate = basesTextDateTime.stream().filter(o -> o.getDateTimeNotification()
+        List<NotificationTask> listObjectEqualsDate = basesTextDateTime.stream().filter(object -> object.getDateTimeNotification()
                 .equals(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES))).collect(Collectors.toList());
         if (listObjectEqualsDate != null) {
             //выводим сообщение с текущей датой в телеграмм
             listObjectEqualsDate.forEach(variable -> sendingMessage(variable.getChatId(), variable.getTextNotification()));
             //удаляем данные отработанные данные из basesTextDateTime
-            listObjectEqualsDate.stream().map(o -> basesTextDateTime.remove(o));
+            listObjectEqualsDate.stream().map(object -> basesTextDateTime.remove(object));
         }
     }
 
