@@ -39,6 +39,7 @@ public class BotService {
         SendMessage message = new SendMessage(String.valueOf(chatId), string);
         controlSendingControl(telegramBot.execute(message));
     }
+
     //заносим в Set первоначальные исходные данные объектов при запуске приложения
     public void initialization() {
         basesTextDateTime = telegramRepository.listNotification(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
@@ -56,7 +57,7 @@ public class BotService {
             //очищаем коллекцию после ввода нового сообщения
             basesTextDateTime.clear();
             //заносим в Set данные объектов у которых время равно или превышает текущее
-            basesTextDateTime = telegramRepository.listNotification(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+            initialization();
             logger.info("Сообщение \" {}  \" отправлено с датой {} ", item, data);
         } else {
             setSql(chatId, messageText, null, LocalDateTime.now());
@@ -72,7 +73,7 @@ public class BotService {
         if (listObjectEqualsDate != null) {
             //выводим сообщение с текущей датой в телеграмм
             listObjectEqualsDate.forEach(variable -> sendingMessage(variable.getChatId(), variable.getTextNotification()));
-            //удаляем данные отработанные данные из basesTextDateTime
+            //удаляем данные отработанные из basesTextDateTime
             listObjectEqualsDate.stream().map(object -> basesTextDateTime.remove(object));
         }
     }
@@ -81,10 +82,6 @@ public class BotService {
     private void setSql(Long chatId, String textMessage, LocalDateTime dateTimeNotatification, LocalDateTime dateTimesDepartures) {
         NotificationTask sql = new NotificationTask(chatId, textMessage, dateTimeNotatification, dateTimesDepartures);
         telegramRepository.save(sql);
-    }
-
-    private Set<NotificationTask> listNotification(LocalDateTime dateTime) {
-        return new HashSet<>(telegramRepository.listNotification(dateTime));
     }
 
     private void controlSendingControl(SendResponse sendResponse) {
