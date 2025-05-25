@@ -14,9 +14,10 @@ import pro.sky.telegrambot.repository.TelegramRepository;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class BotService {
@@ -29,8 +30,11 @@ public class BotService {
         this.telegramBot = telegramBot;
     }
 
+    Set<NotificationTask> basesTextDateTime = new HashSet<>();
+
     private Logger logger = LoggerFactory.getLogger(BotService.class);
-//Отправляем сообщение
+
+    //Отправляем сообщение
     public void sendingMessage(Long chatId, String string) {
         SendMessage message = new SendMessage(String.valueOf(chatId), string);
         controlSendingControl(telegramBot.execute(message));
@@ -42,32 +46,41 @@ public class BotService {
         Matcher matcher = pattern.matcher(messageText);
         // сортируем сообщение + дату
         if (matcher.matches()) {
-            String data = matcher.group(1);
+            LocalDateTime data = LocalDateTime.parse(matcher.group(1), formatter);
             String item = matcher.group(3);
-            setSql(chatId, item, data, LocalDateTime.now().format(formatter));
-            logger.info("Сообщение \" {}  \" отправлено с датой {} ",item, data);
-        }else {
-            setSql(chatId, messageText, "", LocalDateTime.now().format(formatter));
+            setSql(chatId, item, data, LocalDateTime.now());
+            //очищаем коллекцию после ввода нового сообщения
+            basesTextDateTime.clear();
+            //заносим в Set данные объектов у которых время равно или превышает текущее
+            basesTextDateTime = listNotification(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+            logger.info("Сообщение \" {}  \" отправлено с датой {} ", item, data);
+        } else {
+            setSql(chatId, messageText, null, LocalDateTime.now());
             logger.info("Сообщение \" {} \" отправлено без даты", messageText);
         }
     }
 
     @Scheduled(cron = "0/59 * * * * ?")
     public void executeTask() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-        List<NotificationTask> listObjectEqualsDate = telegramRepository.getFindTime(LocalDateTime.now()
-                .truncatedTo(ChronoUnit.MINUTES).format(formatter));
-        //если есть сообщение с текущей датой и временем отправляем боту сообщение
+        //проводим поиск элементов с текущим временем
+        List<NotificationTask> listObjectEqualsDate = basesTextDateTime.stream().filter(o -> o.getDateTimeNotification()
+                .equals(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES))).collect(Collectors.toList());
         if (listObjectEqualsDate != null) {
-            for (NotificationTask variable : listObjectEqualsDate) {
-                sendingMessage(variable.getChatId(), variable.getTextNotification());
-            }
+            //выводим сообщение с текущей датой в телеграмм
+            listObjectEqualsDate.forEach(variable -> sendingMessage(variable.getChatId(), variable.getTextNotification()));
+            //удаляем данные отработанные данные из basesTextDateTime
+            listObjectEqualsDate.stream().map(o -> basesTextDateTime.remove(o));
         }
     }
+
     //записываем данные сообщения в базу данных
-    private void setSql(Long chatId, String textMessage, String dateTimeNotatification, String dateTimesDepartures) {
+    private void setSql(Long chatId, String textMessage, LocalDateTime dateTimeNotatification, LocalDateTime dateTimesDepartures) {
         NotificationTask sql = new NotificationTask(chatId, textMessage, dateTimeNotatification, dateTimesDepartures);
         telegramRepository.save(sql);
+    }
+
+    private Set<NotificationTask> listNotification(LocalDateTime dateTime) {
+        return new HashSet<>(telegramRepository.listNotification(dateTime));
     }
 
     private void controlSendingControl(SendResponse sendResponse) {
@@ -75,6 +88,6 @@ public class BotService {
             logger.info("Сообщение отправлено");
             return;
         }
-        logger.info("Ошибка сообщение не отправлено");
+        logger.info("Ошибка, сообщение не отправлено");
     }
 }

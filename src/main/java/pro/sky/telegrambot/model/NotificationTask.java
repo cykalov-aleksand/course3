@@ -2,6 +2,7 @@ package pro.sky.telegrambot.model;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -11,15 +12,15 @@ public class NotificationTask {
     private Long Id;
     private Long chatId;
     private String textNotification;
-    private String dateTimeNotification;
-    private String dateTimeDepartures;
+    private LocalDateTime dateTimeNotification;
+    private LocalDateTime dateTimeDepartures;
     public NotificationTask(){}
 
     public long getChatId() {
         return chatId;
     }
 
-    public NotificationTask(Long chatId, String textNotification, String dateTimeNotification, String dateTimeDepartures) {
+    public NotificationTask(Long chatId, String textNotification, LocalDateTime dateTimeNotification, LocalDateTime dateTimeDepartures) {
         this.chatId = chatId;
         this.textNotification = textNotification;
         this.dateTimeNotification = dateTimeNotification;
@@ -46,19 +47,19 @@ public class NotificationTask {
         this.textNotification = textNotification;
     }
 
-    public String getDateTimeNotification() {
+    public LocalDateTime getDateTimeNotification() {
         return dateTimeNotification;
     }
 
-    public void setDateTimeNotification(String dateTimeNotification) {
+    public void setDateTimeNotification(LocalDateTime dateTimeNotification) {
         this.dateTimeNotification = dateTimeNotification;
     }
 
-    public String getDateTimeDepartures() {
+    public LocalDateTime getDateTimeDepartures() {
         return dateTimeDepartures;
     }
 
-    public void setDateTimeDepartures(String dateTimeDepartures) {
+    public void setDateTimeDepartures(LocalDateTime dateTimeDepartures) {
         this.dateTimeDepartures = dateTimeDepartures;
     }
 
