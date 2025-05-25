@@ -52,7 +52,7 @@ public class BotService {
             //очищаем коллекцию после ввода нового сообщения
             basesTextDateTime.clear();
             //заносим в Set данные объектов у которых время равно или превышает текущее
-            basesTextDateTime = listNotification(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+            basesTextDateTime = telegramRepository.listNotification(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
             logger.info("Сообщение \" {}  \" отправлено с датой {} ", item, data);
         } else {
             setSql(chatId, messageText, null, LocalDateTime.now());
