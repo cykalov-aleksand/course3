@@ -39,7 +39,9 @@ public class BotService {
         SendMessage message = new SendMessage(String.valueOf(chatId), string);
         controlSendingControl(telegramBot.execute(message));
     }
-
+public void initialization(){
+    basesTextDateTime = telegramRepository.listNotification(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+    }
     public void processingMessages(Long chatId, String messageText) {
         Pattern pattern = Pattern.compile("(\\d{2}\\.\\d{2}\\.\\d{4}\\s\\d{2}:\\d{2})(\\s+)(.+)");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
@@ -72,8 +74,7 @@ public class BotService {
             listObjectEqualsDate.stream().map(object -> basesTextDateTime.remove(object));
         }
     }
-
-    //записываем данные сообщения в базу данных
+       //записываем данные сообщения в базу данных
     private void setSql(Long chatId, String textMessage, LocalDateTime dateTimeNotatification, LocalDateTime dateTimesDepartures) {
         NotificationTask sql = new NotificationTask(chatId, textMessage, dateTimeNotatification, dateTimesDepartures);
         telegramRepository.save(sql);
