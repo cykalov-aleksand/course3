@@ -2,9 +2,9 @@
 
 -- changeset acycalov:1
 CREATE TABLE notification_task(
-    Id SERIAL PRIMARY KEY,
-    Chat_Id BIGSERIAL,
-    Text_Notification TEXT,
-    Date_Time_Notification TIMESTAMP,
-    Date_Time_Departures TIMESTAMP
+    id SERIAL PRIMARY KEY,
+    chat_id BIGSERIAL,
+    text_notification TEXT,
+    date_time_notification TIMESTAMP,
+    date_time_departures TIMESTAMP
 );
